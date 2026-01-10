@@ -1,0 +1,68 @@
+name: Build Static Proot (Final)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build-static-proot:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject Static Build Config
+        working-directory: ./
+        run: |
+          BUILD_SCRIPT="packages/proot/build.sh"
+          echo "Injecting static build config..."
+          # 注入编译配置
+          cat <<EOT >> $BUILD_SCRIPT
+          # === INJECTED CONFIG ===
+          termux_step_pre_configure() {
+              # 1. 关键：禁用 Loader 分离
+              unset PROOT_UNBUNDLE_LOADER
+              
+              # 2. 强制静态链接
+              LDFLAGS+=" -static"
+              # 3. 增加参数长度限制
+              CPPFLAGS+=" -DARG_MAX=131072"
+              
+              # 4. 【关键修复】
+              # 之前可能会加 export CARE_ABOUT_EXTENSION=0
+              # 现在不要加这行！默认开启扩展支持，解决 fchdir 报错
+          }
+          termux_step_make_install() {
+              cd \$TERMUX_PKG_SRCDIR/src
+              
+              # 修改 temp 路径
+              sed -i 's/P_tmpdir/"\/tmp"/g' path/temp.c
+              
+              make V=1
+              make install
+              
+              # 剥离符号表
+              \$STRIP proot
+              
+              # 准备输出
+              mkdir -p /home/builder/termux-packages/output
+              
+              # 复制并重命名为 libproot.so
+              cp proot /home/builder/termux-packages/output/libproot.so
+          }
+          # =======================
+          EOT
+          
+          echo "Build script modified successfully."
+      - name: Build with Docker
+        working-directory: ./
+        run: ./scripts/run-docker.sh ./build-package.sh -a aarch64 samba
+      - name: see
+        run: ls termux-packages/output/
+      - name: Upload Static Binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: libproot-aarch64
+          path: termux-packages/output/libproot.so
