@@ -25,6 +25,9 @@ share/man/man8/tdbtool.8.gz
 termux_step_pre_configure() {
 	CPPFLAGS+=" -D_FILE_OFFSET_BITS=64"
 	LDFLAGS+=" -landroid-spawn"
+	unset PROOT_UNBUNDLE_LOADER
+	LDFLAGS+=" -static"
+	CPPFLAGS+=" -DARG_MAX=131072"
 }
 
 termux_step_configure() {
@@ -149,6 +152,7 @@ termux_step_make() {
 
 termux_step_make_install() {
 	./buildtools/bin/waf install --jobs="$TERMUX_PKG_MAKE_PROCESSES"
+	ls
 }
 
 termux_step_post_make_install() {
