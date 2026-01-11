@@ -24,9 +24,9 @@ share/man/man8/tdbtool.8.gz
 
 termux_step_pre_configure() {
 	CPPFLAGS+=" -D_FILE_OFFSET_BITS=64"
-	LDFLAGS+=" -static"
-	LDFLAGS+=" -landroid-spawn"
-
+    CFLAGS+=" -static"
+	CXXFLAGS+=" -static"
+	LDFLAGS+=" -static -landroid-spawn"
 }
 
 termux_step_configure() {
