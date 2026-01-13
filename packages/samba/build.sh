@@ -23,7 +23,7 @@ share/man/man8/tdbtool.8.gz
 "
 
 termux_step_pre_configure() {
-	LDFLAGS+=" -all-static -static -landroid-spawn"
+	LDFLAGS+=" -landroid-spawn"
 }
 
 termux_step_configure() {
@@ -134,7 +134,7 @@ EOF
 		--without-utmp \
 		--without-winbind \
 		--with-shared-modules="${_vfs_modules},${_pdb_modules},${_auth_modules}" \
-		--with-static-modules='!auth_winbind' ||
+		--with-static-modules=ALL ||
 		# --disable-fault-handling \
 		# --disable-rpath-private-install \
 		# --with-logfilebase="$TERMUX_PREFIX/tmp/log/samba" \
