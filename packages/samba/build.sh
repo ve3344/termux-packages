@@ -133,7 +133,7 @@ EOF
 		--without-systemd \
 		--without-utmp \
 		--without-winbind \
-		--with-shared-modules="${_vfs_modules},${_pdb_modules},${_auth_modules}" \
+		#--with-shared-modules="${_vfs_modules},${_pdb_modules},${_auth_modules}" \
 		--with-static-modules=ALL ||
 		# --disable-fault-handling \
 		# --disable-rpath-private-install \
